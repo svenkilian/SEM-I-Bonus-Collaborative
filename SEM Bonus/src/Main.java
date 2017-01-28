@@ -1,5 +1,5 @@
 
-// Author: Sven Köpke Change
+// Author: Sven Köpke
 
 import Jama.Matrix;
 
