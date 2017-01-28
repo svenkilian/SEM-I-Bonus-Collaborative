@@ -7,8 +7,6 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		System.out.println("Änderung!");
-
 		// displayPValsPositiveOnly();
 
 		solveLGS(createMatrix(), createBVector()); // Matrix und b-Vektor
