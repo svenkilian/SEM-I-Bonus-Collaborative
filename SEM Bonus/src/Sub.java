@@ -1,43 +1,17 @@
 
-// Author: Sven Köpke
+// Author: Sven Koepke
 import Jama.Matrix;
 
 public class Sub {
-	public static int[] recurrentOdd = { Main.compose(0, 1, 1), Main.compose(0, 3, 2), Main.compose(1, 1, 1),
-			Main.compose(1, 3, 2), Main.compose(2, 1, 1), Main.compose(2, 3, 2), Main.compose(3, 1, 1),
-			Main.compose(3, 3, 2), Main.compose(4, 1, 1), Main.compose(4, 3, 2), Main.compose(5, 1, 1),
-			Main.compose(5, 3, 2) }; // Zustände
-	// der
-	// rekurrenten
-	// Klasse
-	// der
-	// Markov-Kette
-	// mit
-	// ungeraden
-	// Füllständen
-	// im
-	// 2.
-	// Kraftwerk
-	public static int[] recurrentEven = { Main.compose(0, 2, 1), Main.compose(0, 4, 2), Main.compose(1, 2, 1),
-			Main.compose(1, 4, 2), Main.compose(2, 2, 1), Main.compose(2, 4, 2), Main.compose(3, 2, 1),
-			Main.compose(3, 4, 2), Main.compose(4, 2, 1), Main.compose(4, 4, 2), Main.compose(5, 2, 1),
-			Main.compose(5, 4, 2) }; // Zustände
-	// der
-	// rekurrenten
-	// Klasse
-	// der
-	// Markov-Kette
-	// mit
-	// geraden
-	// Füllständen
-	// im
-	// 2.
-	// Kraftwerk
 
+	static int[] recurrent;
+	
 	public static void Main_2() {
 
-		solveLGS(createRecurrentOddMatrix(), createOddBVector());
-		solveLGS(createRecurrentEvenMatrix(), createEvenBVector());
+		recurrent = loadOdd();
+		solveLGS(createRecurrentMatrix(), createBVector());
+		recurrent = loadEven();
+		solveLGS(createRecurrentMatrix(), createBVector());
 
 		int i_Odd_1 = 1;
 		int i_Odd_2 = 1;
@@ -58,7 +32,7 @@ public class Sub {
 	}
 
 	/**
-	 * Berechnet den erwarteten Gewinn pro Zeitstufe in Abhängigkeit vom
+	 * Berechnet den erwarteten Gewinn pro Zeitstufe in Abhaengigkeit vom
 	 * Anfangszustand ind
 	 * 
 	 * @param ind
@@ -66,34 +40,33 @@ public class Sub {
 	 * @return erwarteter Gewinn pro Zeitstufe
 	 */
 	public static double createExpectedRevenue(int[] ind) {
-		double[] equ_distr = new double[recurrentEven.length];
-		int[] recurrent = new int[recurrentEven.length];
+		double[] equ_distr = new double[recurrent.length];
 		double expectedAverageRevenue = 0;
 		if (ind[1] % 2 != 0) {
+			recurrent = loadOdd();
 			System.out.println(
-					"Gleichgewichtsverteilung ausgehend von einem Zustand mit ungeradem Füllstand in Kraftwerk 2: ");
-			for (int i = 0; i < recurrentEven.length; i++) {
-				equ_distr[i] = solveLGS(createRecurrentOddMatrix(), createOddBVector())[i];
+					"Gleichgewichtsverteilung ausgehend von einem Zustand mit ungeradem Fuellstand in Kraftwerk 2: ");
+			for (int i = 0; i < recurrent.length; i++) {
+				equ_distr[i] = solveLGS(createRecurrentMatrix(), createBVector())[i];
 
 				System.out
-						.println("Pi(" + Main.decompose(recurrentOdd[i])[0] + ", " + Main.decompose(recurrentOdd[i])[1]
-								+ ", " + Main.decompose(recurrentOdd[i])[2] + ") = " + equ_distr[i]);
+						.println("Pi(" + Main.decompose(recurrent[i])[0] + ", " + Main.decompose(recurrent[i])[1]
+								+ ", " + Main.decompose(recurrent[i])[2] + ") = " + equ_distr[i]);
 
 			}
-			recurrent = recurrentOdd;
 		}
 		if (ind[1] % 2 == 0) {
+			recurrent = loadEven();
 			System.out.println(
-					"Gleichgewichtsverteilung ausgehend von einem Zustand mit geradem Füllstand in Kraftwerk 2: ");
-			for (int i = 0; i < recurrentEven.length; i++) {
-				equ_distr[i] = solveLGS(createRecurrentEvenMatrix(), createEvenBVector())[i];
+					"Gleichgewichtsverteilung ausgehend von einem Zustand mit geradem Fuellstand in Kraftwerk 2: ");
+			for (int i = 0; i < recurrent.length; i++) {
+				equ_distr[i] = solveLGS(createRecurrentMatrix(), createBVector())[i];
 
 				System.out.println(
-						"Pi(" + Main.decompose(recurrentEven[i])[0] + ", " + Main.decompose(recurrentEven[i])[1] + ", "
-								+ Main.decompose(recurrentEven[i])[2] + ") = " + equ_distr[i]);
+						"Pi(" + Main.decompose(recurrent[i])[0] + ", " + Main.decompose(recurrent[i])[1] + ", "
+								+ Main.decompose(recurrent[i])[2] + ") = " + equ_distr[i]);
 
 			}
-			recurrent = recurrentEven;
 		}
 
 		for (int i = 0; i < 6; i++) {
@@ -102,90 +75,46 @@ public class Sub {
 		return expectedAverageRevenue;
 	}
 
-	/**
-	 * @return Matrix des LGS für die rekurrenten Zustände mit ungeradem
-	 *         Füllstand in Kraftwerk 2
-	 */
-	public static double[][] createRecurrentOddMatrix() {
-		double[][] matrix = new double[recurrentOdd.length + 1][recurrentOdd.length];
-
-		for (int i = 0; i < recurrentOdd.length; i++) {
-			for (int j = 0; j < recurrentOdd.length; j++) {
-				if (i == j) {
-					matrix[i][j] = 1 - Main.pVal(recurrentOdd[j], recurrentOdd[i]);
-					// System.out.print(Main.pVal(recurrentOdd[i],
-					// recurrentOdd[j]) + " ");
-
-				} else {
-					matrix[i][j] = -(Main.pVal(recurrentOdd[j], recurrentOdd[i])); // p(j,i)
-					// System.out.print(Main.pVal(recurrentOdd[i],
-					// recurrentOdd[j]) + " ");
-
-				}
-			}
-			// System.out.println();
-		}
-		for (int i = 0; i < recurrentOdd.length; i++) {
-			matrix[recurrentOdd.length][i] = 1;
-		}
-
-		return matrix;
-	}
 
 	/**
-	 * @return Matrix des LGS für die rekurrenten Zustände mit geradem Füllstand
-	 *         in Kraftwerk 2
+	 * Erstellt die Matrix des LGS fuer die rekurrenten Zustaende
+	 * @return Matrix des LGS fuer die rekurrenten Zustaende
 	 */
-	public static double[][] createRecurrentEvenMatrix() {
-		double[][] matrix = new double[recurrentEven.length + 1][recurrentEven.length];
+	public static double[][] createRecurrentMatrix() {
+		double[][] matrix = new double[recurrent.length + 1][recurrent.length];
 
-		for (int i = 0; i < recurrentEven.length; i++) {
-			for (int j = 0; j < recurrentEven.length; j++) {
+		for (int i = 0; i < recurrent.length; i++) {
+			for (int j = 0; j < recurrent.length; j++) {
 				if (i == j) {
-					matrix[i][j] = 1 - Main.pVal(recurrentEven[j], recurrentEven[i]);
+					matrix[i][j] = 1 - Main.p(recurrent[j], recurrent[i]);
 				} else {
-					matrix[i][j] = -Main.pVal(recurrentEven[j], recurrentEven[i]);
+					matrix[i][j] = -Main.p(recurrent[j], recurrent[i]);
 				}
 			}
 		}
-		for (int i = 0; i < recurrentEven.length; i++) {
-			matrix[recurrentEven.length][i] = 1;
+		for (int i = 0; i < recurrent.length; i++) {
+			matrix[recurrent.length][i] = 1;
 		}
 		return matrix;
 	}
 
 	/**
-	 * @return Rechte Seite des LGS für die Zustände mit ungeraden Füllständen
-	 *         im 2. Kraftwerk
+	 * Erstellt die rechte Seite des LGS
+	 * @return Rechte Seite des LGS
 	 */
-	public static double[][] createOddBVector() {
-		double[][] b_vector = new double[recurrentOdd.length + 1][1];
-		for (int i = 0; i < recurrentOdd.length; i++) {
+	public static double[][] createBVector() {
+		double[][] b_vector = new double[recurrent.length + 1][1];
+		for (int i = 0; i < recurrent.length; i++) {
 			b_vector[i][0] = 0;
 		}
 
-		b_vector[recurrentOdd.length][0] = 1;
+		b_vector[recurrent.length][0] = 1;
 
 		return b_vector;
 	}
 
 	/**
-	 * @param nOfVariables
-	 * @return Rechte Seite des LGS für die Zustände mit geraden Füllständen im
-	 *         2. Kraftwerk
-	 */
-	public static double[][] createEvenBVector() {
-		double[][] b_vector = new double[recurrentEven.length + 1][1];
-		for (int i = 0; i < recurrentEven.length; i++) {
-			b_vector[i][0] = 0;
-		}
-
-		b_vector[recurrentEven.length][0] = 1;
-
-		return b_vector;
-	}
-
-	/**
+	 * Loest das LGS abhaenigig von der Matrix und dem B-Vektor
 	 * @param matrix
 	 *            LGS-Matrix in Gaussscher Normalform
 	 * @param b_vector
@@ -196,29 +125,40 @@ public class Sub {
 		m = new Matrix(matrix);
 		b_vec = new Matrix(b_vector);
 		x_vec = m.solve(b_vec);
-		double[] solution_vector = new double[recurrentEven.length];
-		// for (int i = 0; i < matrix.length; i++) {
-		// for (int j = 0; j < matrix.length - 1; j++) {
-		// System.out.print(matrix[i][j] + " ");
-		// }
-		// System.out.println();
-		// }
+		double[] solution_vector = new double[recurrent.length];
 		for (int i = 0; i < matrix.length - 1; i++) {
-			// System.out.println(
-			// "Pi(" + Main.decompose(recurrentOdd[i])[0] + ", " +
-			// Main.decompose(recurrentOdd[i])[1] + ", "
-			// + Main.decompose(recurrentOdd[i])[2] + ") = " +
-			// x_vec.getArray()[i][0]);
 			solution_vector[i] = x_vec.getArray()[i][0];
 		}
 		return solution_vector;
 	}
 
 	/**
-	 * @param matrix
-	 *            LGS-Matrix in Gaussscher Normalform
-	 * @param b_vector
-	 *            Rechte Seite des Gleichungssystems
+	 * Zustaende der rekurrenten Klasse der Markov-Kette mit ungeraden
+	 * Fuellstaenden im zweiten Kraftwerk
+	 * 
+	 * @return Zustands-Array
 	 */
+	public static int[] loadOdd() {
+		int[] recurrentOdd = { Main.compose(0, 1, 1), Main.compose(0, 3, 2), Main.compose(1, 1, 1),
+				Main.compose(1, 3, 2), Main.compose(2, 1, 1), Main.compose(2, 3, 2), Main.compose(3, 1, 1),
+				Main.compose(3, 3, 2), Main.compose(4, 1, 1), Main.compose(4, 3, 2), Main.compose(5, 1, 1),
+				Main.compose(5, 3, 2) };
+		return recurrentOdd;
+
+	}
+
+	/**
+	 * Zustaende der rekurrenten Klasse der Markov-Kette mit geraden
+	 * Fuellstaenden im zweiten Kraftwerk
+	 * 
+	 * @return Zustands-Array
+	 */
+	public static int[] loadEven() {
+		int[] recurrentEven = { Main.compose(0, 2, 1), Main.compose(0, 4, 2), Main.compose(1, 2, 1),
+				Main.compose(1, 4, 2), Main.compose(2, 2, 1), Main.compose(2, 4, 2), Main.compose(3, 2, 1),
+				Main.compose(3, 4, 2), Main.compose(4, 2, 1), Main.compose(4, 4, 2), Main.compose(5, 2, 1),
+				Main.compose(5, 4, 2) };
+		return recurrentEven;
+	}
 
 }
