@@ -262,8 +262,8 @@ public class Main {
 	}
 
 	/**
-	 * Funktion gibt den Wahrscheinlichkeitswert des Uebergangs von Zustand ind1
-	 * in Zustand ind 2 zurueck
+	 * Funktion gibt den Wahrscheinlichkeitswert des Uebergangs von Zustand
+	 * state1 in Zustand state2 zurueck
 	 * 
 	 * @param state1
 	 *            Zustand i(n) als kodierte Integer
@@ -323,7 +323,7 @@ public class Main {
 			plants[i] = new Plant(ALPHA[i], BETA[i], A[i], C[i]);
 		}
 
-		// Anzahl Zustände bestimmen
+		// Anzahl Zustï¿½nde bestimmen
 		states = 1;
 		for (Plant x : plants)
 			states = states * (x.C + 1);
