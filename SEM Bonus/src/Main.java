@@ -25,9 +25,9 @@ public class Main {
 													// werden erstellt und LGS
 													// geloest
 
-		simulate(4, 7, 2, 10000000);
+		simulate(4, 7, 2, 1000000);
 		System.out.println();
-		simulate(0, 2, 1, 10000000);
+		simulate(0, 2, 1, 1000000);
 		System.out.println();
 		Sub.Main_2();
 

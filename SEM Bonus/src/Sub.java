@@ -5,7 +5,7 @@ import Jama.Matrix;
 public class Sub {
 
 	static int[] recurrent;
-	
+
 	public static void Main_2() {
 
 		recurrent = loadOdd();
@@ -49,9 +49,8 @@ public class Sub {
 			for (int i = 0; i < recurrent.length; i++) {
 				equ_distr[i] = solveLGS(createRecurrentMatrix(), createBVector())[i];
 
-				System.out
-						.println("Pi(" + Main.decompose(recurrent[i])[0] + ", " + Main.decompose(recurrent[i])[1]
-								+ ", " + Main.decompose(recurrent[i])[2] + ") = " + equ_distr[i]);
+				System.out.println("Pi(" + Main.decompose(recurrent[i])[0] + ", " + Main.decompose(recurrent[i])[1]
+						+ ", " + Main.decompose(recurrent[i])[2] + ") = " + equ_distr[i]);
 
 			}
 		}
@@ -62,22 +61,21 @@ public class Sub {
 			for (int i = 0; i < recurrent.length; i++) {
 				equ_distr[i] = solveLGS(createRecurrentMatrix(), createBVector())[i];
 
-				System.out.println(
-						"Pi(" + Main.decompose(recurrent[i])[0] + ", " + Main.decompose(recurrent[i])[1] + ", "
-								+ Main.decompose(recurrent[i])[2] + ") = " + equ_distr[i]);
+				System.out.println("Pi(" + Main.decompose(recurrent[i])[0] + ", " + Main.decompose(recurrent[i])[1]
+						+ ", " + Main.decompose(recurrent[i])[2] + ") = " + equ_distr[i]);
 
 			}
 		}
 
-		for (int i = 0; i < 6; i++) {
+		for (int i = 0; i < recurrent.length; i++) {
 			expectedAverageRevenue += equ_distr[i] * Main.revenue(Main.decompose(recurrent[i]));
 		}
 		return expectedAverageRevenue;
 	}
 
-
 	/**
 	 * Erstellt die Matrix des LGS fuer die rekurrenten Zustaende
+	 * 
 	 * @return Matrix des LGS fuer die rekurrenten Zustaende
 	 */
 	public static double[][] createRecurrentMatrix() {
@@ -100,6 +98,7 @@ public class Sub {
 
 	/**
 	 * Erstellt die rechte Seite des LGS
+	 * 
 	 * @return Rechte Seite des LGS
 	 */
 	public static double[][] createBVector() {
@@ -115,6 +114,7 @@ public class Sub {
 
 	/**
 	 * Loest das LGS abhaenigig von der Matrix und dem B-Vektor
+	 * 
 	 * @param matrix
 	 *            LGS-Matrix in Gaussscher Normalform
 	 * @param b_vector
