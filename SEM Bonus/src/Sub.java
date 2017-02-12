@@ -1,5 +1,4 @@
 
-// Author: Sven Koepke
 import Jama.Matrix;
 
 public class Sub {

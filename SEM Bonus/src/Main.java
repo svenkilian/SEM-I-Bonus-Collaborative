@@ -1,11 +1,22 @@
 
 // Author: Sven Koepke
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
+
 import Jama.Matrix;
 
 public class Main {
+	// Eingabestrom
+	static InputStreamReader input = new InputStreamReader(System.in);
+	// Eingabepuffer
+	static BufferedReader keyboardInput = new BufferedReader(input);
+	static int e1, e2, e3;
 
 	// Konfigurationen
+	final static int NO_OF_SIMS = 1000000;
+	static Matrix m, b_vec, x_vec;
 	static Plant[] plants;
 	static int states;
 	final static int[] ALPHA = { 3, 3, 2 };
@@ -17,28 +28,31 @@ public class Main {
 
 	public static void main(String[] args) {
 
-		loadConfig();
-
-		// displayPValsPositiveOnly();
+		loadConfig(); // Kraftwerke werden mit Konfigurationsparametern
+						// instantiiert
 
 		solveLGS(createMatrix(), createBVector()); // Matrix und b-Vektor
 													// werden erstellt und LGS
 													// geloest
 
-		simulate(4, 7, 2, 1000000);
+		System.out.println("Erwarteter diskontierter Gesamtgewinn ausgehend von Zustand \n" + "V(0, 0, 0) = "
+				+ x_vec.getArray()[0][0]);
+
+		try {
+			e1 = Integer.parseInt(keyboardInput.readLine());
+			e2 = Integer.parseInt(keyboardInput.readLine());
+			e3 = Integer.parseInt(keyboardInput.readLine());
+		} catch (IOException e) {
+		}
+
+		System.out.println("Erwarteter diskontierter Gesamtgewinn ausgehend von Zustand \n" + "V(" + e1 + ", " + e2
+				+ ", " + e3 + ") = " + x_vec.getArray()[compose(e1, e2, e3)][0]);
+
+		simulate(4, 7, 2, NO_OF_SIMS);
 		System.out.println();
-		simulate(0, 2, 1, 1000000);
+		simulate(0, 2, 1, NO_OF_SIMS);
 		System.out.println();
 		Sub.Main_2();
-
-		// displayPValsPositiveOnly();
-
-		int[] feld = { 10, 10, 8 };
-		System.out.println(g(feld, 2)[0]);
-		System.out.println(g(feld, 2)[1]);
-		System.out.println(g(feld, 2)[2]);
-
-		System.out.println(plants[0].a(feld[0]));
 
 	}
 
@@ -86,7 +100,7 @@ public class Main {
 		System.out.println("\nRelative Haeufigkeiten der Simluation von " + n
 				+ " Perioden ausgehend vom Anfangszustand (" + i1 + ", " + i2 + ", " + i3 + "): ");
 		for (int i = 0; i < states; i++) {
-			if (count[i] > 100) {
+			if (count[i] > NO_OF_SIMS / 1000) {
 				System.out.println("Count(" + decompose(i)[0] + ", " + decompose(i)[1] + ", " + decompose(i)[2] + ") = "
 						+ count[i] / ((double) n));
 			}
@@ -139,14 +153,15 @@ public class Main {
 	 *            b-Vektor des LGS wird als Vektor uebergeben
 	 */
 	public static void solveLGS(double[][] matrix, double[][] b_vector) {
-		Matrix m, b_vec, x_vec;
+
 		m = new Matrix(matrix);
 		b_vec = new Matrix(b_vector);
 		x_vec = m.solve(b_vec);
-		for (int i = 0; i < states; i++) {
-			System.out.println("V(" + decompose(i)[0] + ", " + decompose(i)[1] + ", " + decompose(i)[2] + ") = "
-					+ x_vec.getArray()[i][0]);
-		}
+		// for (int i = 0; i < states; i++) {
+		// System.out.println("V(" + decompose(i)[0] + ", " + decompose(i)[1] +
+		// ", " + decompose(i)[2] + ") = "
+		// + x_vec.getArray()[i][0]);
+		// }
 
 	}
 
@@ -293,7 +308,7 @@ public class Main {
 	 * Gibt den Revenue in der auf den i(n) folgenden Periode wieder
 	 * 
 	 * @param state
-	 *            Zustand als Integer der Fuellstaende
+	 *            Zustand als Integer-Array der Fuellstaende
 	 * @return Mit 5 GE gewichtete Summe der Abfluesse einer auf einen Zustand
 	 *         folgenden Periode
 	 */
