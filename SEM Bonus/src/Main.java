@@ -1,31 +1,30 @@
-
-// Author: Sven Koepke
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-
+import java.util.Scanner;
 import Jama.Matrix;
 
+/**
+ * @author Sven Koepke, Daniel Heinz, Marius Laemmlin
+ * @version 1.0
+ */
 public class Main {
-	// Eingabestrom
-	static InputStreamReader input = new InputStreamReader(System.in);
-	// Eingabepuffer
-	static BufferedReader keyboardInput = new BufferedReader(input);
-	static int e1, e2, e3;
 
-	// Konfigurationen
-	final static int NO_OF_SIMS = 1000000;
-	static Matrix m, b_vec, x_vec;
-	static Plant[] plants;
-	static int states;
-	final static int[] ALPHA = { 3, 3, 2 };
-	final static int[] BETA = { 8, 8, 6 };
-	final static int[][] A = { { 0, 3, 6 }, { 0, 2, 4 }, { 0, 1, 2 } };
-	final static int[] C = { 10, 10, 8 };
-	final static double GAMMA = 0.95;
-	final static int REVENUE_PER_UNIT = 5;
+	// Definition von Klassenvariablen
+	final static int NO_OF_SIMS = 1000000; // Anzahl Simulationen (Wenn aktiv)
+	static Matrix m, b_vec, x_vec; // Matrizen
+	static Plant[] plants; // Feld der Plant-Instanzen
+	static int states; // Anzahl der möglichen Zustände
+	final static int[] ALPHA = { 3, 3, 2 }; // Alpha wie in Aufgabenstellung
+	final static int[] BETA = { 8, 8, 6 }; // Beta wie in Aufgabenstellung
+	final static int[][] A = { { 0, 3, 6 }, { 0, 2, 4 }, { 0, 1, 2 } }; // Abflussmengen
+	final static int[] C = { 10, 10, 8 }; // Kapazität der Kraftwerke
+	final static double GAMMA = 0.95; // Diskontierungsfaktor
+	final static int REVENUE_PER_UNIT = 5; // Gewinn pro abgelassener Einheit Wasser
+	final static int[] plants_Empty = { 0, 0, 0 }; // Leerer Anfangszustand der Kraftwerke
 
+	/**
+	 * Main-Methode zum Aufruf der Methoden und Interaktion mit dem User.
+	 * 
+	 * @param args
+	 */
 	public static void main(String[] args) {
 
 		loadConfig(); // Kraftwerke werden mit Konfigurationsparametern
@@ -36,23 +35,49 @@ public class Main {
 													// geloest
 
 		System.out.println("Erwarteter diskontierter Gesamtgewinn ausgehend von Zustand \n" + "V(0, 0, 0) = "
-				+ x_vec.getArray()[0][0]);
+				+ x_vec.getArray()[compose(plants_Empty)][0] + "\n");
 
-		try {
-			e1 = Integer.parseInt(keyboardInput.readLine());
-			e2 = Integer.parseInt(keyboardInput.readLine());
-			e3 = Integer.parseInt(keyboardInput.readLine());
-		} catch (IOException e) {
-		}
+		System.out.println("Erwarteter Gewinn pro Zeitstufe ausgehend von Zustand \n" + "V(0, 0, 0) = "
+				+ Sub.createExpectedRevenue(plants_Empty));
 
-		System.out.println("Erwarteter diskontierter Gesamtgewinn ausgehend von Zustand \n" + "V(" + e1 + ", " + e2
-				+ ", " + e3 + ") = " + x_vec.getArray()[compose(e1, e2, e3)][0]);
+		// Scanner für User-Eingabe
+		Scanner in = new Scanner(System.in);
 
-		simulate(4, 7, 2, NO_OF_SIMS);
-		System.out.println();
-		simulate(0, 2, 1, NO_OF_SIMS);
-		System.out.println();
-		Sub.Main_2();
+		System.out.print(
+				"\nGeben Sie die Anfangsfüllstände der Kraftwerke 1, 2 und 3 in folgender Form an: x y z. Verwenden Sie Leerzeichen zum Trennen der Werte.\nEingabe: ");
+		int[] levels = new int[3];
+		do {
+			try {
+				levels[0] = Integer.parseInt(in.next());
+			} catch (NumberFormatException nfe) {
+				break;
+			}
+			levels[1] = Integer.parseInt(in.next());
+			levels[2] = Integer.parseInt(in.next());
+			
+			if(levels[0] > C[0] || levels[1] > C[1] || levels[2] > C[2]) {
+				System.out.println("\nKein gültiger Startwert!\nEingabe: ");
+				continue;
+			}
+
+			System.out.println("\nErwarteter diskontierter Gesamtgewinn ausgehend von Zustand \n" + "V(" + levels[0]
+					+ ", " + levels[1] + ", " + levels[2] + ") = " + x_vec.getArray()[compose(levels)][0] + "\n");
+
+			System.out.println("Erwarteter Gewinn pro Zeitstufe ausgehend von Zustand \n" + "V(" + levels[0] + ", "
+					+ levels[1] + ", " + levels[2] + ") = " + Sub.createExpectedRevenue(levels));
+
+			System.out.print(
+					"_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nWeitere Startzustände (x y z). Abbruch mit beliebigem Buchstaben.\nEingabe: ");
+		} while (true);
+		
+		// Simulationen zur Identifikation der rekurrenten Zustände. Zum Anzeigen, '//' entfernen.
+		// simulate(4, 7, 2, NO_OF_SIMS);
+		// System.out.println();
+		// simulate(0, 2, 1, NO_OF_SIMS);
+		// System.out.println();
+		
+		System.out.println("\nProgramm beendet.");
+		in.close();
 
 	}
 
@@ -338,7 +363,7 @@ public class Main {
 			plants[i] = new Plant(ALPHA[i], BETA[i], A[i], C[i]);
 		}
 
-		// Anzahl Zustï¿½nde bestimmen
+		// Anzahl Zustaende bestimmen
 		states = 1;
 		for (Plant x : plants)
 			states = states * (x.C + 1);

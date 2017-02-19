@@ -1,34 +1,14 @@
 
 import Jama.Matrix;
 
+/**
+ * @author Sven Koepke, Daniel Heinz, Marius Laemmlin
+ * @version 1.0
+ */
 public class Sub {
 
+	// Feld der rekurrenten Zustaende
 	static int[] recurrent;
-
-	public static void Main_2() {
-
-		recurrent = loadOdd();
-		solveLGS(createRecurrentMatrix(), createBVector());
-		recurrent = loadEven();
-		solveLGS(createRecurrentMatrix(), createBVector());
-
-		int i_Odd_1 = 1;
-		int i_Odd_2 = 1;
-		int i_Odd_3 = 1;
-
-		int i_Even_1 = 10;
-		int i_Even_2 = 10;
-		int i_Even_3 = 8;
-
-		System.out.println("\nErwateter Gewinn pro Zeitstufe ausgehend von Zustand (" + i_Odd_1 + ", " + i_Odd_2 + ", "
-				+ i_Odd_3 + "): " + createExpectedRevenue(Main.decompose(Main.compose(i_Odd_1, i_Odd_2, i_Odd_3)))
-				+ "\n");
-
-		System.out.println("\nErwateter Gewinn pro Zeitstufe ausgehend von Zustand (" + i_Even_1 + ", " + i_Even_2
-				+ ", " + i_Even_3 + "): "
-				+ createExpectedRevenue(Main.decompose(Main.compose(i_Even_1, i_Even_2, i_Even_3))));
-
-	}
 
 	/**
 	 * Berechnet den erwarteten Gewinn pro Zeitstufe in Abhaengigkeit vom
@@ -39,30 +19,20 @@ public class Sub {
 	 * @return erwarteter Gewinn pro Zeitstufe
 	 */
 	public static double createExpectedRevenue(int[] ind) {
-		double[] equ_distr = new double[recurrent.length];
+		double[] equ_distr = {0}; // Default-Wert, Initialisierung erfolgt durch loadOdd()/loadEven()
 		double expectedAverageRevenue = 0;
 		if (ind[1] % 2 != 0) {
 			recurrent = loadOdd();
-			System.out.println(
-					"Gleichgewichtsverteilung ausgehend von einem Zustand mit ungeradem Fuellstand in Kraftwerk 2: ");
+			equ_distr = new double[recurrent.length];
 			for (int i = 0; i < recurrent.length; i++) {
 				equ_distr[i] = solveLGS(createRecurrentMatrix(), createBVector())[i];
-
-				System.out.println("Pi(" + Main.decompose(recurrent[i])[0] + ", " + Main.decompose(recurrent[i])[1]
-						+ ", " + Main.decompose(recurrent[i])[2] + ") = " + equ_distr[i]);
-
 			}
 		}
-		if (ind[1] % 2 == 0) {
+		else if (ind[1] % 2 == 0) {
 			recurrent = loadEven();
-			System.out.println(
-					"Gleichgewichtsverteilung ausgehend von einem Zustand mit geradem Fuellstand in Kraftwerk 2: ");
+			equ_distr = new double[recurrent.length];
 			for (int i = 0; i < recurrent.length; i++) {
 				equ_distr[i] = solveLGS(createRecurrentMatrix(), createBVector())[i];
-
-				System.out.println("Pi(" + Main.decompose(recurrent[i])[0] + ", " + Main.decompose(recurrent[i])[1]
-						+ ", " + Main.decompose(recurrent[i])[2] + ") = " + equ_distr[i]);
-
 			}
 		}
 
@@ -112,7 +82,7 @@ public class Sub {
 	}
 
 	/**
-	 * Loest das LGS abhaenigig von der Matrix und dem B-Vektor
+	 * Loest das LGS abhaengig von der Matrix und dem B-Vektor
 	 * 
 	 * @param matrix
 	 *            LGS-Matrix in Gaussscher Normalform
