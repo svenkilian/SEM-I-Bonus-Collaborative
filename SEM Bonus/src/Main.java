@@ -178,32 +178,9 @@ public class Main {
 	 *            b-Vektor des LGS wird als Vektor uebergeben
 	 */
 	public static void solveLGS(double[][] matrix, double[][] b_vector) {
-
 		m = new Matrix(matrix);
 		b_vec = new Matrix(b_vector);
 		x_vec = m.solve(b_vec);
-		// for (int i = 0; i < states; i++) {
-		// System.out.println("V(" + decompose(i)[0] + ", " + decompose(i)[1] +
-		// ", " + decompose(i)[2] + ") = "
-		// + x_vec.getArray()[i][0]);
-		// }
-
-	}
-
-	/**
-	 * Gibt die berechneten p-Werte auf der Konsole aus (nur positive Werte
-	 * werden ausgegeben)
-	 */
-	public static void displayPValsPositiveOnly() {
-		for (int i = 0; i < states; i++) {
-			for (int j = 0; j < states; j++) {
-				if (p(i, j) != 0) {
-					System.out.println("pVal(" + decompose(i)[0] + ", " + decompose(i)[1] + ", " + decompose(i)[2]
-							+ "; " + decompose(j)[0] + ", " + decompose(j)[1] + ", " + decompose(j)[2] + ") = "
-							+ p(decompose(i), decompose(j)));
-				}
-			}
-		}
 	}
 
 	/**
