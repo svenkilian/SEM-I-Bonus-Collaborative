@@ -9,7 +9,7 @@ import Jama.Matrix;
 public class Main {
 
 	// Definition von Klassenvariablen
-	final static int NO_OF_SIMS = 1000000; // Anzahl Simulationen (Wenn aktiv)
+	final static int NO_OF_SIMS = 1000000; // Anzahl Simulationen
 	static Matrix m, b_vec, x_vec; // Matrizen
 	static Plant[] plants; // Feld der Plant-Instanzen
 	static int states; // Anzahl der moeglichen Zustaende
@@ -71,7 +71,7 @@ public class Main {
 
 			System.out.println("Erwarteter Gewinn pro Zeitstufe ausgehend von Zustand \n" + "V(" + levels[0] + ", "
 					+ levels[1] + ", " + levels[2] + ") = "
-					+ Math.round(Sub.createExpectedRevenue(levels) * 1000 / 1000.0));
+					+ Math.round(Sub.createExpectedRevenue(levels) * 1000) / 1000.0);
 
 			System.out.print(
 					"_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nWeitere Startzustaende (x y z). Abbruch mit beliebigem Buchstaben.\nEingabe: ");

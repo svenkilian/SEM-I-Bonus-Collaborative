@@ -134,17 +134,32 @@ public class Sub {
 	// }
 
 	/**
-	 * Integer-Array mit rekurrenten Zustaenden wird mithilfe der Methode
-	 * simulate() erstellt
+	 * Integer-Array mit rekurrenten Zustaenden wird mithilfe des
+	 * Methodenaufrufs der Methode 'simulate()' erstellt
 	 *
-	 * 
 	 * @param ind
 	 *            Anfangszustand als Integer-Array
 	 * @return Integer-Array mit rekurrenten Zuständen
 	 */
 	public static Integer[] createRecurrentClassArray(int[] ind) {
-		set = simulate(ind[0], ind[1], ind[2], Main.NO_OF_SIMS);
-		Integer[] recurrent = set.toArray(new Integer[set.size()]);
+		set = simulate(ind[0], ind[1], ind[2], Main.NO_OF_SIMS); // Die Menge
+																	// der
+																	// rekurrenten
+																	// Zustaende
+																	// ergibt
+																	// sich aus
+																	// dem
+																	// Ergebnis
+																	// der
+																	// Simulation
+		Integer[] recurrent = set.toArray(new Integer[set.size()]); // Elemente
+																	// der Menge
+																	// rekurrenter
+																	// Zustaende
+																	// werden in
+																	// einem
+																	// Integer-Array
+																	// gespeichert
 		return recurrent;
 	}
 
@@ -197,8 +212,12 @@ public class Sub {
 		// System.out.println("\nRelative Haeufigkeiten der Simluation von " + n
 		// + " Perioden ausgehend vom Anfangszustand (" + i1 + ", " + i2 + ", "
 		// + i3 + "): ");
+
+		// Alle Zustände, deren durch die Simulation bestimmte relative
+		// Häufigkeit 0,1 % ueberschreitet, wird als rekurrent angenommen und in
+		// die Menge rekurrenter Zustaende (set_0) aufgenommen
 		for (int i = 0; i < Main.states; i++) {
-			if (count[i] > Main.NO_OF_SIMS / 1000) {
+			if (count[i] > Main.NO_OF_SIMS / 1000.0) {
 				// System.out.println("Count(" + Main.decompose(i)[0] + ", " +
 				// Main.decompose(i)[1] + ", "
 				// + Main.decompose(i)[2] + ") = " + count[i] / ((double) n));
@@ -206,7 +225,7 @@ public class Sub {
 
 			}
 		}
-		return set_0;
+		return set_0; // Menge rekurrenter Zustaende wird zurueckgegeben
 	}
 
 }
