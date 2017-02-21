@@ -214,8 +214,9 @@ public class Sub {
 		// + i3 + "): ");
 
 		// Alle Zustände, deren durch die Simulation bestimmte relative
-		// Häufigkeit 0,1 % ueberschreitet, wird als rekurrent angenommen und in
-		// die Menge rekurrenter Zustaende (set_0) aufgenommen
+		// Häufigkeit 0,1 % ueberschreitet, wird als rekurrent angenommen und
+		// der
+		// Menge rekurrenter Zustaende (set_0) hinzugefügt
 		for (int i = 0; i < Main.states; i++) {
 			if (count[i] > Main.NO_OF_SIMS / 1000.0) {
 				// System.out.println("Count(" + Main.decompose(i)[0] + ", " +
