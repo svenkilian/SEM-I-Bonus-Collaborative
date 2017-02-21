@@ -22,8 +22,8 @@ public class Sub {
 	 * @return erwarteter Gewinn pro Zeitstufe
 	 */
 	public static double createExpectedRevenue(int[] ind) {
-		double[] equ_distr = { 0 }; // Default-Wert, Initialisierung erfolgt
-									// durch loadOdd()/loadEven()
+		double[] equ_distr = { 0 }; // Default-Wert der Gleichgewichtsverteilung
+
 		double expectedAverageRevenue = 0;
 		recurrentClass = createRecurrentClassArray(ind);
 
@@ -136,6 +136,7 @@ public class Sub {
 	/**
 	 * Integer-Array mit rekurrenten Zustaenden wird mithilfe der Methode
 	 * simulate() erstellt
+	 *
 	 * 
 	 * @param ind
 	 *            Anfangszustand als Integer-Array
@@ -150,6 +151,8 @@ public class Sub {
 	/**
 	 * Methode simuliert den Prozess n mal ausgehend vom Uebergebenen
 	 * Anfangszustand und gibt die Menge rekurrenter Zustände als HashSet zurück
+	 * Als Rekurrenter Zustand wird ein Zustand betrachtet, der bei der
+	 * Simulation eine relative Auftrittshäufigkeit von > 0,1 % hat
 	 * 
 	 * @param i1
 	 *            Anfangsfuellstand in Kraftwerk 1

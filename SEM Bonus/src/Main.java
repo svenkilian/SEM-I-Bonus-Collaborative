@@ -52,15 +52,14 @@ public class Main {
 		do {
 			try {
 				levels[0] = Integer.parseInt(in.next());
+				levels[1] = Integer.parseInt(in.next());
+				levels[2] = Integer.parseInt(in.next());
 			} catch (NumberFormatException nfe) {
 				break;
 			} catch (Exception e) {
 				System.out.println("Es ist ein unerwarteter Fehler aufgetreten.");
-				break;
-			}
-			levels[1] = Integer.parseInt(in.next());
-			levels[2] = Integer.parseInt(in.next());
 
+			}
 			if (levels[0] > C[0] || levels[1] > C[1] || levels[2] > C[2]) {
 				System.out.println("\nKein gueltiger Startwert!\nEingabe: ");
 				continue;
