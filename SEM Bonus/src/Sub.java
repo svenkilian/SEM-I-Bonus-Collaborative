@@ -1,4 +1,6 @@
 
+import java.util.HashSet;
+
 import Jama.Matrix;
 
 /**
@@ -8,36 +10,30 @@ import Jama.Matrix;
 public class Sub {
 
 	// Feld der rekurrenten Zustaende
-	static int[] recurrent;
+	static Integer[] recurrentClass;
+	static HashSet<Integer> set = new HashSet<Integer>();
 
 	/**
 	 * Berechnet den erwarteten Gewinn pro Zeitstufe in Abhaengigkeit vom
 	 * Anfangszustand ind
 	 * 
 	 * @param ind
-	 *            Anfangszustand als Array
+	 *            Anfangszustand als Integer-Array
 	 * @return erwarteter Gewinn pro Zeitstufe
 	 */
 	public static double createExpectedRevenue(int[] ind) {
-		double[] equ_distr = {0}; // Default-Wert, Initialisierung erfolgt durch loadOdd()/loadEven()
+		double[] equ_distr = { 0 }; // Default-Wert, Initialisierung erfolgt
+									// durch loadOdd()/loadEven()
 		double expectedAverageRevenue = 0;
-		if (ind[1] % 2 != 0) {
-			recurrent = loadOdd();
-			equ_distr = new double[recurrent.length];
-			for (int i = 0; i < recurrent.length; i++) {
-				equ_distr[i] = solveLGS(createRecurrentMatrix(), createBVector())[i];
-			}
-		}
-		else if (ind[1] % 2 == 0) {
-			recurrent = loadEven();
-			equ_distr = new double[recurrent.length];
-			for (int i = 0; i < recurrent.length; i++) {
-				equ_distr[i] = solveLGS(createRecurrentMatrix(), createBVector())[i];
-			}
+		recurrentClass = createRecurrentClassArray(ind);
+
+		equ_distr = new double[recurrentClass.length];
+		for (int i = 0; i < recurrentClass.length; i++) {
+			equ_distr[i] = solveLGS(createRecurrentMatrix(), createBVector())[i];
 		}
 
-		for (int i = 0; i < recurrent.length; i++) {
-			expectedAverageRevenue += equ_distr[i] * Main.revenue(Main.decompose(recurrent[i]));
+		for (int i = 0; i < recurrentClass.length; i++) {
+			expectedAverageRevenue += equ_distr[i] * Main.revenue(Main.decompose(recurrentClass[i]));
 		}
 		return expectedAverageRevenue;
 	}
@@ -48,19 +44,19 @@ public class Sub {
 	 * @return Matrix des LGS fuer die rekurrenten Zustaende
 	 */
 	public static double[][] createRecurrentMatrix() {
-		double[][] matrix = new double[recurrent.length + 1][recurrent.length];
+		double[][] matrix = new double[recurrentClass.length + 1][recurrentClass.length];
 
-		for (int i = 0; i < recurrent.length; i++) {
-			for (int j = 0; j < recurrent.length; j++) {
+		for (int i = 0; i < recurrentClass.length; i++) {
+			for (int j = 0; j < recurrentClass.length; j++) {
 				if (i == j) {
-					matrix[i][j] = 1 - Main.p(recurrent[j], recurrent[i]);
+					matrix[i][j] = 1 - Main.p(recurrentClass[j], recurrentClass[i]);
 				} else {
-					matrix[i][j] = -Main.p(recurrent[j], recurrent[i]);
+					matrix[i][j] = -Main.p(recurrentClass[j], recurrentClass[i]);
 				}
 			}
 		}
-		for (int i = 0; i < recurrent.length; i++) {
-			matrix[recurrent.length][i] = 1;
+		for (int i = 0; i < recurrentClass.length; i++) {
+			matrix[recurrentClass.length][i] = 1;
 		}
 		return matrix;
 	}
@@ -71,12 +67,12 @@ public class Sub {
 	 * @return Rechte Seite des LGS
 	 */
 	public static double[][] createBVector() {
-		double[][] b_vector = new double[recurrent.length + 1][1];
-		for (int i = 0; i < recurrent.length; i++) {
+		double[][] b_vector = new double[recurrentClass.length + 1][1];
+		for (int i = 0; i < recurrentClass.length; i++) {
 			b_vector[i][0] = 0;
 		}
 
-		b_vector[recurrent.length][0] = 1;
+		b_vector[recurrentClass.length][0] = 1;
 
 		return b_vector;
 	}
@@ -94,7 +90,7 @@ public class Sub {
 		m = new Matrix(matrix);
 		b_vec = new Matrix(b_vector);
 		x_vec = m.solve(b_vec);
-		double[] solution_vector = new double[recurrent.length];
+		double[] solution_vector = new double[recurrentClass.length];
 		for (int i = 0; i < matrix.length - 1; i++) {
 			solution_vector[i] = x_vec.getArray()[i][0];
 		}
@@ -107,14 +103,18 @@ public class Sub {
 	 * 
 	 * @return Zustands-Array
 	 */
-	public static int[] loadOdd() {
-		int[] recurrentOdd = { Main.compose(0, 1, 1), Main.compose(0, 3, 2), Main.compose(1, 1, 1),
-				Main.compose(1, 3, 2), Main.compose(2, 1, 1), Main.compose(2, 3, 2), Main.compose(3, 1, 1),
-				Main.compose(3, 3, 2), Main.compose(4, 1, 1), Main.compose(4, 3, 2), Main.compose(5, 1, 1),
-				Main.compose(5, 3, 2) };
-		return recurrentOdd;
-
-	}
+	// public static int[] loadOdd() {
+	//
+	// int[] recurrentOdd = { Main.compose(0, 1, 1), Main.compose(0, 3, 2),
+	// Main.compose(1, 1, 1),
+	// Main.compose(1, 3, 2), Main.compose(2, 1, 1), Main.compose(2, 3, 2),
+	// Main.compose(3, 1, 1),
+	// Main.compose(3, 3, 2), Main.compose(4, 1, 1), Main.compose(4, 3, 2),
+	// Main.compose(5, 1, 1),
+	// Main.compose(5, 3, 2) };
+	// return recurrentOdd;
+	//
+	// }
 
 	/**
 	 * Zustaende der rekurrenten Klasse der Markov-Kette mit geraden
@@ -122,12 +122,88 @@ public class Sub {
 	 * 
 	 * @return Zustands-Array
 	 */
-	public static int[] loadEven() {
-		int[] recurrentEven = { Main.compose(0, 2, 1), Main.compose(0, 4, 2), Main.compose(1, 2, 1),
-				Main.compose(1, 4, 2), Main.compose(2, 2, 1), Main.compose(2, 4, 2), Main.compose(3, 2, 1),
-				Main.compose(3, 4, 2), Main.compose(4, 2, 1), Main.compose(4, 4, 2), Main.compose(5, 2, 1),
-				Main.compose(5, 4, 2) };
-		return recurrentEven;
+	// public static int[] loadEven() {
+	// int[] recurrentEven = { Main.compose(0, 2, 1), Main.compose(0, 4, 2),
+	// Main.compose(1, 2, 1),
+	// Main.compose(1, 4, 2), Main.compose(2, 2, 1), Main.compose(2, 4, 2),
+	// Main.compose(3, 2, 1),
+	// Main.compose(3, 4, 2), Main.compose(4, 2, 1), Main.compose(4, 4, 2),
+	// Main.compose(5, 2, 1),
+	// Main.compose(5, 4, 2) };
+	// return recurrentEven;
+	// }
+
+	/**
+	 * Integer-Array mit rekurrenten Zustaenden wird mithilfe der Methode
+	 * simulate() erstellt
+	 * 
+	 * @param ind
+	 *            Anfangszustand als Integer-Array
+	 * @return Integer-Array mit rekurrenten Zuständen
+	 */
+	public static Integer[] createRecurrentClassArray(int[] ind) {
+		set = simulate(ind[0], ind[1], ind[2], Main.NO_OF_SIMS);
+		Integer[] recurrent = set.toArray(new Integer[set.size()]);
+		return recurrent;
+	}
+
+	/**
+	 * Methode simuliert den Prozess n mal ausgehend vom Uebergebenen
+	 * Anfangszustand und gibt die Menge rekurrenter Zustände als HashSet zurück
+	 * 
+	 * @param i1
+	 *            Anfangsfuellstand in Kraftwerk 1
+	 * @param i2
+	 *            Anfangsfuellstand in Kraftwerk 2
+	 * @param i3
+	 *            Anfangsfuellstand in Kraftwerk 3
+	 * @param n
+	 *            Anzahl der simulierten Perioden
+	 * @return HashSet mit rekurrenten Zuständen
+	 */
+
+	public static HashSet<Integer> simulate(int i1, int i2, int i3, int n) {
+		HashSet<Integer> set_0 = new HashSet<Integer>();
+		int[] state = { i1, i2, i3 };
+		int[] count = new int[Main.states];
+		for (int i = 0; i < Main.states; i++) {
+			count[i] = 0;
+		}
+		double rand = 0;
+		int flow = 0;
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < Main.states; j++) {
+				if (Main.compose(state) == j) {
+					count[j] += 1;
+				}
+			}
+			rand = (int) (Math.random() * 100) + 1;
+
+			if (rand <= 20) {
+				flow = 0;
+			} else if ((rand <= 45) && (rand > 20)) {
+				flow = 1;
+			} else if ((rand <= 75) && (rand > 45)) {
+				flow = 2;
+			} else if (rand > 75) {
+				flow = 3;
+			}
+			state = Main.g(state, flow);
+
+		}
+		// System.out.println("\nRelative Haeufigkeiten der Simluation von " + n
+		// + " Perioden ausgehend vom Anfangszustand (" + i1 + ", " + i2 + ", "
+		// + i3 + "): ");
+		for (int i = 0; i < Main.states; i++) {
+			if (count[i] > Main.NO_OF_SIMS / 1000) {
+				// System.out.println("Count(" + Main.decompose(i)[0] + ", " +
+				// Main.decompose(i)[1] + ", "
+				// + Main.decompose(i)[2] + ") = " + count[i] / ((double) n));
+				set_0.add(i);
+
+			}
+		}
+		return set_0;
 	}
 
 }

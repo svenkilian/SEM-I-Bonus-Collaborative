@@ -1,4 +1,5 @@
 import java.util.Scanner;
+
 import Jama.Matrix;
 
 /**
@@ -11,14 +12,16 @@ public class Main {
 	final static int NO_OF_SIMS = 1000000; // Anzahl Simulationen (Wenn aktiv)
 	static Matrix m, b_vec, x_vec; // Matrizen
 	static Plant[] plants; // Feld der Plant-Instanzen
-	static int states; // Anzahl der möglichen Zustände
+	static int states; // Anzahl der moeglichen Zustaende
 	final static int[] ALPHA = { 3, 3, 2 }; // Alpha wie in Aufgabenstellung
 	final static int[] BETA = { 8, 8, 6 }; // Beta wie in Aufgabenstellung
 	final static int[][] A = { { 0, 3, 6 }, { 0, 2, 4 }, { 0, 1, 2 } }; // Abflussmengen
-	final static int[] C = { 10, 10, 8 }; // Kapazität der Kraftwerke
+	final static int[] C = { 10, 10, 8 }; // Kapazitaet der Kraftwerke
 	final static double GAMMA = 0.95; // Diskontierungsfaktor
-	final static int REVENUE_PER_UNIT = 5; // Gewinn pro abgelassener Einheit Wasser
-	final static int[] plants_Empty = { 0, 0, 0 }; // Leerer Anfangszustand der Kraftwerke
+	final static int REVENUE_PER_UNIT = 5; // Gewinn pro abgelassener Einheit
+											// Wasser
+	final static int[] plants_Empty = { 0, 0, 0 }; // Leerer Anfangszustand der
+													// Kraftwerke
 
 	/**
 	 * Main-Methode zum Aufruf der Methoden und Interaktion mit dem User.
@@ -35,101 +38,54 @@ public class Main {
 													// geloest
 
 		System.out.println("Erwarteter diskontierter Gesamtgewinn ausgehend von Zustand \n" + "V(0, 0, 0) = "
-				+ x_vec.getArray()[compose(plants_Empty)][0] + "\n");
+				+ Math.round(x_vec.getArray()[compose(plants_Empty)][0] * 1000) / 1000.0 + "\n");
 
 		System.out.println("Erwarteter Gewinn pro Zeitstufe ausgehend von Zustand \n" + "V(0, 0, 0) = "
-				+ Sub.createExpectedRevenue(plants_Empty));
+				+ Math.round(Sub.createExpectedRevenue(plants_Empty) * 1000) / 1000.0);
 
-		// Scanner für User-Eingabe
+		// Scanner fuer User-Eingabe
 		Scanner in = new Scanner(System.in);
 
 		System.out.print(
-				"\nGeben Sie die Anfangsfüllstände der Kraftwerke 1, 2 und 3 in folgender Form an: x y z. Verwenden Sie Leerzeichen zum Trennen der Werte.\nEingabe: ");
+				"\nGeben Sie die Anfangsfuellstaende der Kraftwerke 1, 2 und 3 in folgender Form an: x y z. Verwenden Sie Leerzeichen zum Trennen der Werte.\nEingabe: ");
 		int[] levels = new int[3];
 		do {
 			try {
 				levels[0] = Integer.parseInt(in.next());
 			} catch (NumberFormatException nfe) {
 				break;
+			} catch (Exception e) {
+				System.out.println("Es ist ein unerwarteter Fehler aufgetreten.");
+				break;
 			}
 			levels[1] = Integer.parseInt(in.next());
 			levels[2] = Integer.parseInt(in.next());
-			
-			if(levels[0] > C[0] || levels[1] > C[1] || levels[2] > C[2]) {
-				System.out.println("\nKein gültiger Startwert!\nEingabe: ");
+
+			if (levels[0] > C[0] || levels[1] > C[1] || levels[2] > C[2]) {
+				System.out.println("\nKein gueltiger Startwert!\nEingabe: ");
 				continue;
 			}
 
 			System.out.println("\nErwarteter diskontierter Gesamtgewinn ausgehend von Zustand \n" + "V(" + levels[0]
-					+ ", " + levels[1] + ", " + levels[2] + ") = " + x_vec.getArray()[compose(levels)][0] + "\n");
+					+ ", " + levels[1] + ", " + levels[2] + ") = "
+					+ Math.round(x_vec.getArray()[compose(levels)][0] * 1000) / 1000.0 + "\n");
 
 			System.out.println("Erwarteter Gewinn pro Zeitstufe ausgehend von Zustand \n" + "V(" + levels[0] + ", "
-					+ levels[1] + ", " + levels[2] + ") = " + Sub.createExpectedRevenue(levels));
+					+ levels[1] + ", " + levels[2] + ") = "
+					+ Math.round(Sub.createExpectedRevenue(levels) * 1000 / 1000.0));
 
 			System.out.print(
-					"_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nWeitere Startzustände (x y z). Abbruch mit beliebigem Buchstaben.\nEingabe: ");
+					"_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ \n\nWeitere Startzustaende (x y z). Abbruch mit beliebigem Buchstaben.\nEingabe: ");
 		} while (true);
-		
-		// Simulationen zur Identifikation der rekurrenten Zustände. Zum Anzeigen, '//' entfernen.
-		// simulate(4, 7, 2, NO_OF_SIMS);
+
+		// Simulationen zur Identifikation der rekurrenten Zustaende. Zum
+		// Anzeigen, '//' entfernen.
+		// Sub.simulate(levels[0], levels[1], levels[2], NO_OF_SIMS);
 		// System.out.println();
-		// simulate(0, 2, 1, NO_OF_SIMS);
-		// System.out.println();
-		
+
 		System.out.println("\nProgramm beendet.");
 		in.close();
 
-	}
-
-	/**
-	 * Methode simuliert den Prozess n mal ausgehend vom Uebergebenen
-	 * Anfangszustand
-	 * 
-	 * @param i1
-	 *            Anfangsfuellstand in Kraftwerk 1
-	 * @param i2
-	 *            Anfangsfuellstand in Kraftwerk 2
-	 * @param i3
-	 *            Anfangsfuellstand in Kraftwerk 3
-	 * @param n
-	 *            Anzahl der simulierten Perioden
-	 */
-	public static void simulate(int i1, int i2, int i3, int n) {
-		int[] state = { i1, i2, i3 };
-		int[] count = new int[states];
-		for (int i = 0; i < states; i++) {
-			count[i] = 0;
-		}
-		double rand = 0;
-		int flow = 0;
-		for (int i = 0; i < n; i++) {
-			for (int j = 0; j < states; j++) {
-				if (compose(state) == j) {
-					count[j] += 1;
-				}
-			}
-			rand = (int) (Math.random() * 100) + 1;
-
-			if (rand <= 20) {
-				flow = 0;
-			} else if ((rand <= 45) && (rand > 20)) {
-				flow = 1;
-			} else if ((rand <= 75) && (rand > 45)) {
-				flow = 2;
-			} else if (rand > 75) {
-				flow = 3;
-			}
-			state = g(state, flow);
-
-		}
-		System.out.println("\nRelative Haeufigkeiten der Simluation von " + n
-				+ " Perioden ausgehend vom Anfangszustand (" + i1 + ", " + i2 + ", " + i3 + "): ");
-		for (int i = 0; i < states; i++) {
-			if (count[i] > NO_OF_SIMS / 1000) {
-				System.out.println("Count(" + decompose(i)[0] + ", " + decompose(i)[1] + ", " + decompose(i)[2] + ") = "
-						+ count[i] / ((double) n));
-			}
-		}
 	}
 
 	/**
