@@ -226,6 +226,13 @@ public class Sub {
 
 			}
 		}
+		// for (int i = 0; i < set_0.toArray().length; i++) {
+		// System.out.println(
+		// Main.decompose((int) (set_0.toArray()[i]))[0] + ", " +
+		// Main.decompose((int) (set_0.toArray()[i]))[1]
+		// + ", " + Main.decompose((int) (set_0.toArray()[i]))[2]);
+		// ;
+		// }
 		return set_0; // Menge rekurrenter Zustaende wird zurueckgegeben
 	}
 
